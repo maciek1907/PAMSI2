@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1524328424 source:d:\[ baza danych ]\studia - semestr iv\projektowanie algorytmów\projekt 2\main.cpp
+	<iostream>
+	<time.h>
+	<windows.h>
+
