@@ -1,394 +1,348 @@
 #include <iostream>
-#include <time.h>
+#include <stdio.h>
 #include <windows.h>
-
-#define ILOSC_ELEMENTOW 1000000 // Ilosc elementow w jednej tablicy
-#define ILOSC_TABLIC 100 // Ilosc tablic, po "ILOSC_ELEMENTOW" w kazdej tablicy
+#include <time.h>
+#include <queue>
+#include <algorithm>
 
 using namespace std;
 
-/* Zmienne globalne */
+int rozmiar;
+int kwadrat = rozmiar*rozmiar;
 
-int tablica_glowna[ILOSC_ELEMENTOW];
-int tablica_temp[ILOSC_ELEMENTOW]; // Tablica pomocnicza dla sortowania przez scalanie
+char instrukcja_3[] = " 1 : 2 : 3 \n"
+                      "...........\n"
+                      " 4 : 5 : 6 \n"
+                      "...........\n"
+                      " 7 : 8 : 9 \n"
+                      "\n\n\n";
 
-/* ***************  */
+char instrukcja_4[] = " 1 : 2 : 3 : 4 \n"
+                      "...............\n"
+                      " 5 : 6 : 7 : 8 \n"
+                      "...............\n"
+                      " 9 : 10: 11: 12\n"
+                      "...............\n"
+                      " 13: 14: 15: 16\n"
+                      "\n\n\n";
 
-void scal(int poczatek, int srodek, int koniec)
+char instrukcja_5[] = " 1 : 2 : 3 : 4 : 5 \n"
+                      "...................\n"
+                      " 6 : 7 : 8 : 9 : 10\n"
+                      "...................\n"
+                      " 11: 12: 13: 14: 15\n"
+                      "...................\n"
+                      " 16: 17: 18: 19: 20\n"
+                      "...................\n"
+                      " 21: 22: 23: 24: 25\n"
+                      "\n\n\n";
+
+queue <int> Os;
+queue <int> Xs;
+
+void plansza(char t[])
 {
-    int i, j, k;
-
-    for (i = poczatek; i <= koniec; i++)
-    {
-        tablica_temp[i] = tablica_glowna[i];
-    }
-
-    i = k = poczatek;
-    j = srodek+1;
-
-    while ( i <= srodek && j <= koniec)
-    {
-        if (tablica_temp[i] < tablica_temp[j])
+     for (int i = 1; i <= kwadrat; i++)
         {
-            tablica_glowna[k++] = tablica_temp[i++];
-        }
-        else
-        {
-            tablica_glowna[k++] = tablica_temp[j++];
-        }
-    }
-
-    while (i <= srodek)
-    {
-        tablica_glowna[k++] = tablica_temp[i++];
-    }
+            cout << " " << t[i] << " ";
+            if (i % rozmiar)
+                cout << ":";
+            else if (i != kwadrat)
+                cout << "\n\n";
+            else cout << endl;
+     }
 }
 
-void sortowanie_scalanie(int poczatek, int koniec)
+bool wygraj(char t[], char z)
 {
-    if ( poczatek < koniec )
+    if (rozmiar == 3)
     {
-        long long int srodek = (poczatek+koniec)/2;
+     bool a = false;
 
-        sortowanie_scalanie(poczatek, srodek);
-        sortowanie_scalanie(srodek+1, koniec);
-        scal(poczatek, srodek, koniec);
+     for (int i=1; i<=7; i+=3) a |= ((t[i]==z) && (t[i+1]==z) && (t[i+2]==z));
+     for (int i=1; i<=3; i++) a |= ((t[i]==z) && (t[i+3]==z) && (t[i+6]==z));
+     a |= ((t[1]==z) && (t[5]==z) && (t[9]==z));
+     a |= ((t[7]==z) && (t[5]==z) && (t[3]==z));
+
+     if (a) return true;
+
+     return false;
     }
+
+    if (rozmiar == 4)
+    {
+     bool a = false;
+
+     for (int i=1; i<=13; i+=4) a |= ((t[i]==z) && (t[i+1]==z) && (t[i+2]==z) && (t[i+3]==z));
+     for (int i=1; i<=4; i++) a |= ((t[i]==z) && (t[i+4]==z) && (t[i+8]==z) && (t[i+12]==z));
+     a |= ((t[1]==z) && (t[6]==z) && (t[11]==z) && (t[16]==z));
+     a |= ((t[13]==z) && (t[10]==z) && (t[7]==z) && (t[4]==z));
+
+     if (a) return true;
+
+     return false;
+    }
+
+    if (rozmiar == 5)
+    {
+     bool a = false;
+
+     for (int i=1; i<=21; i+=5) a |= ((t[i]==z) && (t[i+1]==z) && (t[i+2]==z) && (t[i+3]==z) && (t[i+4]==z));
+     for (int i=1; i<=5; i++) a |= ((t[i]==z) && (t[i+5]==z) && (t[i+10]==z) && (t[i+15]==z) && (t[i+20]==z));
+     a |= ((t[1]==z) && (t[7]==z) && (t[13]==z) && (t[19]==z) && (t[25]==z));
+     a |= ((t[21]==z) && (t[17]==z) && (t[13]==z) && (t[9]==z) && (t[5]==z));
+
+     if (a) return true;
+
+     return false;
+    }
+
 }
 
-void sortowanie_szybkie(int tablica[], int poczatek, int koniec)
+bool remis(char t[])
 {
-    int i = poczatek;
-    int j = koniec;
-    int srodek = tablica[(poczatek+koniec)/2];
+     for (int i=1; i<=kwadrat; i++)
+     {
+         if (t[i]==' ')
+         {
+             return false;
+         }
+     }
+
+     return true;
+}
+
+int wolneMiejsca (char t[])
+{
+    int miejsca = 0;
+
+    for (int i = 1; i <= kwadrat; i++)
+    {
+       if (t[i]==' ')
+       {
+           miejsca++;
+       }
+    }
+
+    return miejsca;
+}
+
+int ruchLosowy(char t[])
+{
+    int pozycja;
+    int a = time(NULL);
+
+    srand(a);
 
     do
     {
-        while ( tablica[i] < srodek)
-        {
-            i++;
-        }
-        while ( tablica[j] > srodek)
-        {
-            j--;
-        }
-
-        if (i <= j)
-        {
-            swap(tablica[i], tablica[j]);
-
-            i++;
-            j--;
-        }
+        pozycja = rand() % kwadrat + 1;
     }
-    while ( i <= j);
+    while ( (t[pozycja]!=' ') );
 
-    if (poczatek < j)
-    {
-        sortowanie_szybkie(tablica, poczatek, j);
-    }
-
-    if (koniec > i)
-    {
-        sortowanie_szybkie(tablica, i, koniec);
-    }
+    return pozycja;
 }
 
-void sortowanie_kopcowanie(int tablica[], int ilosc)
+int minimax(char t[], char player, unsigned int poziom)
 {
-    int i, j;
-
-    for (int k = 2; k <= ilosc; k++)
-    {
-        i = k;
-        j = i / 2;
-
-        while( (tablica[i] > tablica[j] ) && (j > 0) )
-        {
-            swap(tablica[i], tablica[j]);
-            i = j;
-            j = i / 2;
-        }
-    }
-
     int n;
+    int m;
+    int miejsca = wolneMiejsca(t);
 
-    for (int k = ilosc; k > 1; k-- )
+    if (wygraj (t,player))
+        return (player == 'X') ? 1 : -1;
+    if (remis(t))
+        return 0;
+
+    if (15 < miejsca < 25)
     {
-        swap (tablica[1], tablica[k]);
+      if (poziom>7)
+      {
+         if (((player=='O') && (m<n)) || ((player=='X') && (m>n)))
+         {
+            n=m;
+         }
 
-        i = 1;
-        j = 2;
+         return n;
+       }
+    }
+    else
+    {
+         if (poziom > 5)
+         {
+            if (( (player=='O') && (m < n)) || ((player=='X') && (m>n)) )
+            {
+               n = m;
+            }
+            return n;
+         }
+    }
 
-        while(j < k)
+    player = (player == 'X')
+        ? 'O':'X';
+
+    n = (player == 'X')? -kwadrat:kwadrat;
+
+    for (int i=1; i<=kwadrat; i++)
+    {
+        if (t[i]==' ')
         {
-            if( (j + 1 < k) && (tablica[j] < tablica[j + 1]) )
-            {
-                n = j + 1;
-            }
-            else
-            {
-                n = j;
-            }
-
-            if ( tablica[n] <= tablica[i] )
-            {
-                break;
-            }
-
-            swap (tablica[n], tablica[n]);
-            i = n;
-            j = i + i;
+           t[i] = player;
+           m = minimax(t, player, poziom++);
+           t[i] = ' ';
+           if ( ((player=='O') && (m<n)) || ((player=='X') && (m>n)) )
+           {
+               n = m;
+           }
         }
     }
+
+    return n;
 }
 
-void generuj_losowo()
+int komputer(char t[])
 {
-    /* Inicjalizajca generatora liczb losowych */
+    int pozycja, m, mmx;
+    mmx = -kwadrat;
 
-    srand(time(NULL));
+     cout << "Oczekuj na ruch komputera..." << endl;
 
-    for (int i = 0; i < ILOSC_ELEMENTOW; ++i)
+    for (int i = 1; i <= kwadrat; i++)
     {
-        int wartosc = (rand()%100)+1;
+        if (t[i] == ' ')
+        {
+           t[i] = 'X';
+           m = minimax(t, 'X', 0);
+           t[i] = ' ';
 
-        tablica_glowna[i] = wartosc;
+           if (m > mmx)
+           {
+                mmx = m;
+                pozycja = i;
+           }
+        }
     }
 
+    return pozycja;
+}
+
+void ruch(char t[], char &player, unsigned int licznik)
+{
+     int pozycja;
+
+     if (player == 'O')
+     {
+        cout << endl << "=== RUCH GRACZA === --> ";
+        cin >> pozycja;
+
+        while ((pozycja < 1) && (pozycja > kwadrat))
+        {
+              cout << "Zly wybor.";
+              cin >> pozycja;
+        }
+
+        while (t[pozycja] != ' ')
+        {
+              cout << "Zly wybor.";
+              cin >> pozycja;
+        }
+
+        Os.push(pozycja);
+     }
+     else if (player == 'X')
+     {
+             if (licznik > 1)
+                pozycja = komputer(t);
+             else
+             {
+                  pozycja = ruchLosowy(t);
+             }
+             cout << "== RUCH KOMPUTERA ===" << pozycja << endl;
+
+             Xs.push(pozycja);
+     }
+
+     if ((pozycja >= 1) && (pozycja <= kwadrat) && (t[pozycja]==' '))
+     {
+        t[pozycja] = player;
+     }
+
+     player = (player == 'O') ? 'X' : 'O';
 }
 
 int main()
 {
-        cout << "Sortowanie dla " << ILOSC_ELEMENTOW << " elementow tablicy." << endl;
-
-        int time = 0;
-        int czasA;
-        int czasB;
-
-        float ile_juz_posortowane[] = {0.25, 0.50, 0.75, 0.95, 0.99, 0.997};
-
-        /* ****************************************************
-
-        SORTOWANIE PRZEZ SCALANIE
-
-        **************************************************** */
-
-        /* Przypadek pierwszy - wszystkie wartosci losowe */
-
-        czasA = GetTickCount();
-
-        cout << endl << endl << "SORTOWANIE PRZEZ SCALANIE:" << endl;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_scalanie(0, ILOSC_ELEMENTOW);
-        }
-
-        czasB = GetTickCount();
-
-        time = czasB - czasA;
-
-        cout << "Czas: " << time << " milisekund" << endl;
-
-
-        /* Przypadek drugi - dana czesc tablicy posortowana */
-
-        for (int j = 0; j < 6; j++)
-        {
-
-            time = 0;
-
-            for (int i = 0; i < ILOSC_TABLIC; ++i)
-            {
-                generuj_losowo();
-                sortowanie_scalanie(0, (ILOSC_ELEMENTOW-1) * ile_juz_posortowane[j] );
-                czasA = GetTickCount();
-                sortowanie_scalanie(0, ILOSC_ELEMENTOW-1);
-                czasB = GetTickCount();
-
-                time = time + (czasB - czasA);
-            }
-
-            cout << "Czas: " << time << " milisekund" << endl;
-
-        }
-
-
-        /* Przypadek trzeci - posortowane w odwrotnej kolejnosci*/
-
-        time = 0;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_scalanie(0, ILOSC_ELEMENTOW-1 );
-
-            int temp;
-
-            for (int i = 0; i < ILOSC_ELEMENTOW/2; ++i)
-            {
-                temp = tablica_glowna[ILOSC_ELEMENTOW-i-1];
-                tablica_glowna[ILOSC_ELEMENTOW-i-1] = tablica_glowna[i];
-                tablica_glowna[i] = temp;
-            }
-
-            czasA = GetTickCount();
-            sortowanie_scalanie(0, ILOSC_ELEMENTOW-1);
-            czasB = GetTickCount();
-
-            time = time + (czasB - czasA);
-        }
-
-        cout << "Czas: " << time << " milisekund" << endl;
-
-        /* ****************************************************
-
-        SORTOWANIE SZYBKIE (QUICKSORT)
-
-        **************************************************** */
-
-        /* Przypadek pierwszy - wszystkie wartosci losowe */
-
-        czasA = GetTickCount();
-
-        cout << endl << endl << "SORTOWANIE SZYBKIE:" << endl;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_szybkie(tablica_glowna, 0, ILOSC_ELEMENTOW-1);
-        }
-
-        czasB = GetTickCount();
-
-        time = czasB - czasA;
-
-        cout << "Czas: " << time << " milisekund" << endl;
-
-
-        /* Przypadek drugi - dana czesc tablicy posortowana */
-
-        for (int j = 0; j < 6; j++)
-        {
-
-            time = 0;
-
-            for (int i = 0; i < ILOSC_TABLIC; ++i)
-            {
-                generuj_losowo();
-                sortowanie_szybkie(tablica_glowna, 0, (ILOSC_ELEMENTOW-1) * ile_juz_posortowane[j] );
-                czasA = GetTickCount();
-                sortowanie_szybkie(tablica_glowna, 0, ILOSC_ELEMENTOW-1);
-                czasB = GetTickCount();
-
-                time = time + (czasB - czasA);
-            }
-
-            cout << "Czas: " << time << " milisekund" << endl;
-
-        }
-
-        /* Przypadek trzeci - posortowane w odwrotnej kolejnosci*/
-
-        time = 0;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_szybkie(tablica_glowna, 0, ILOSC_ELEMENTOW-1 );
-
-            int temp;
-
-            for (int i = 0; i < ILOSC_ELEMENTOW/2; ++i)
-            {
-                temp = tablica_glowna[ILOSC_ELEMENTOW-i-1];
-                tablica_glowna[ILOSC_ELEMENTOW-i-1] = tablica_glowna[i];
-                tablica_glowna[i] = temp;
-            }
-
-            czasA = GetTickCount();
-            sortowanie_szybkie(tablica_glowna, 0, ILOSC_ELEMENTOW-1);
-            czasB = GetTickCount();
-
-            time = time + (czasB - czasA);
-        }
-
-        cout << "Czas: " << time << " milisekund" << endl;
-
-        /* ****************************************************
-
-        SORTOWANIE PRZEZ KOPCOWANIE
-
-        **************************************************** */
-
-        /* Przypadek pierwszy - wszystkie wartosci losowe */
-
-        czasA = GetTickCount();
-
-        cout << endl << endl << "SORTOWANIE PRZEZ KOPCOWANIE:" << endl;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_kopcowanie(tablica_glowna, ILOSC_ELEMENTOW-1);
-        }
-
-        czasB = GetTickCount();
-
-        time = czasB - czasA;
-
-        cout << "Czas: " << time << " milisekund" << endl;
-
-
-        /* Przypadek drugi - dana czesc tablicy posortowana */
-
-        for (int j = 0; j < 6; j++)
-        {
-
-            time = 0;
-
-            for (int i = 0; i < ILOSC_TABLIC; ++i)
-            {
-                generuj_losowo();
-                sortowanie_kopcowanie(tablica_glowna, (ILOSC_ELEMENTOW)*ile_juz_posortowane[j]);
-                czasA = GetTickCount();
-                sortowanie_kopcowanie(tablica_glowna, ILOSC_ELEMENTOW);
-                czasB = GetTickCount();
-
-                time = time + (czasB - czasA);
-            }
-
-            cout << "Czas: " << time << " milisekund" << endl;
-
-        }
-
-
-        /* Przypadek trzeci - posortowane w odwrotnej kolejnosci*/
-
-        time = 0;
-
-        for (int i = 0; i < ILOSC_TABLIC; ++i)
-        {
-            generuj_losowo();
-            sortowanie_kopcowanie(tablica_glowna, ILOSC_ELEMENTOW);
-
-            int temp;
-
-            for (int i = 0; i < ILOSC_ELEMENTOW/2; ++i)
-            {
-                temp = tablica_glowna[ILOSC_ELEMENTOW-i-1];
-                tablica_glowna[ILOSC_ELEMENTOW-i-1] = tablica_glowna[i];
-                tablica_glowna[i] = temp;
-            }
-
-            czasA = GetTickCount();
-            sortowanie_kopcowanie(tablica_glowna, ILOSC_ELEMENTOW-1);
-            czasB = GetTickCount();
-
-            time = time + (czasB - czasA);
-        }
-
-        cout << "Czas: " << time << " milisekund" << endl;
+    int n = 0;
+    char t[26], odp, player;
+
+    cout << "Wybierz rozmiar planszy" << endl << endl;
+    cout << "3x3 (Wcisnij 3)" << endl;
+    cout << "4x4 (Wcisnij 4)" << endl;
+    cout << "5x5 (Wcisnij 5)" << endl << endl;
+    cout << "Twoj wybor: ";
+    cin >> rozmiar;
+
+    if ( !((rozmiar == 3) || (rozmiar == 4) || (rozmiar == 5)) )
+    {
+        cout << "Bledna wartosc, ustawiam rozmiar 3x3";
+        rozmiar = 3;
+        getchar(); getchar();
     }
+
+    system ("cls");
+
+    kwadrat = rozmiar*rozmiar;
+
+    do
+    {
+       for (int i = 1; i <= kwadrat; i++)
+       {
+           t[i] = ' ';
+       }
+
+       player = 'O';
+
+       while ( !wygraj(t,'X') && !wygraj(t,'O') && !remis(t) )
+       {
+            if (rozmiar == 3)
+                cout << instrukcja_3;
+            else if (rozmiar == 4)
+                cout << instrukcja_4;
+            else if (rozmiar == 5)
+                cout << instrukcja_5;
+
+             plansza(t);
+             ruch(t, player, n);
+             n++;
+
+             system("cls");
+       }
+
+       n = 0;
+
+            if (rozmiar == 3)
+                cout << instrukcja_3;
+            else if (rozmiar == 4)
+                cout << instrukcja_4;
+            else if (rozmiar == 5)
+                cout << instrukcja_5;
+
+       plansza(t);
+
+       if (wygraj(t,'X'))
+            cout << endl << "Przegrales!" << endl;
+       if (wygraj(t,'O'))
+            cout << endl << "Wygrales!" << endl;
+       if (remis(t))
+            cout << endl << "Remis!" << endl;
+
+       cout << "Grasz dalej? (t / n)";
+       cin >> odp;
+       cout << endl;
+
+       system("cls");
+
+    } while (odp == 't');
+
+    return 0;
+}

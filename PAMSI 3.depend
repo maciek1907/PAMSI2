@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1527925512 source:c:\users\macie\desktop\pamsi\pamsi 3\main.cpp
+	<iostream>
+	<sstream>
+	<iomanip>
+
+1528311393 source:c:\users\maciej\desktop\pamsi\pamsi 3\main.cpp
+	<iostream>
+	<stdio.h>
+	<windows.h>
+	<time.h>
+	<queue>
+	<algorithm>
+
